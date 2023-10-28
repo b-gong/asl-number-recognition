@@ -1,6 +1,7 @@
 import os
 import random
 import shutil
+from PIL import Image
 
 # Path to your dataset directory
 source_path = '../assets'
@@ -21,7 +22,7 @@ os.makedirs(dev_dir, exist_ok=True)
 os.makedirs(test_dir, exist_ok=True)
 
 # Function to split files into train, dev, and test sets
-def split_files(source_folder, train_dest, dev_dest, test_dest):
+def split_files(source_folder, train_dest, dev_dest, test_dest, size=(64, 64)):
     files = [f for f in os.listdir(source_folder) if os.path.isfile(os.path.join(source_folder, f))]
     random.shuffle(files)
     
@@ -30,6 +31,14 @@ def split_files(source_folder, train_dest, dev_dest, test_dest):
     
     for i, file in enumerate(files):
         source = os.path.join(source_folder, file)
+       
+        # Open the image
+        img = Image.open(source)
+        # Resize to 64x64
+        img = img.resize(size)
+        # Convert to grayscale (if needed)
+        img = img.convert("L")
+
         if i < train_count:
             shutil.copy(source, os.path.join(train_dest, file))
         elif i < train_count + dev_count:
