@@ -26,8 +26,8 @@ torch.use_deterministic_algorithms(True)
 
 OPTS = None
 
-IMAGE_SHAPE = (28, 28)  # Size of MNIST images
-INPUT_DIM = 784  # = 28 * 28, total size of vector
+IMAGE_SHAPE = (64, 64)  # Size of MNIST images
+INPUT_DIM = 4096  # = 28 * 28, total size of vector
 NUM_CLASSES = 10  # Number of classes we are classifying over
 
 class SoftmaxRegression(nn.Module):
@@ -126,7 +126,7 @@ class ConvNet(nn.Module):
         ### BEGIN_SOLUTION 4g
         self.conv = nn.Conv2d(1, num_channels, kernel_size)
         self.pool = nn.MaxPool2d(2)
-        self.linear = nn.Linear(845, hidden_dim)
+        self.linear = nn.Linear(4805, hidden_dim)
         self.dropout = nn.Dropout(dropout_prob)
         self.linear2 = nn.Linear(hidden_dim, NUM_CLASSES)
         ### END_SOLUTION 4g
@@ -149,7 +149,8 @@ class ConvNet(nn.Module):
         output = self.conv(x)
         output = F.relu(output)
         output = self.pool(output)
-        output = output.reshape(B, 845)
+        B, C, X, Y = output.shape
+        output = output.reshape(B, C*X*Y)
         output = self.linear(output)
         output = F.relu(output)
         output = self.dropout(output)
@@ -263,7 +264,7 @@ def main():
     torch.manual_seed(0)
 
     # Read the data
-    all_data = np.load('q4_data.npy', allow_pickle=True).item()
+    all_data = np.load('asl_data.npy', allow_pickle=True).item()
     X_train = torch.tensor(all_data['X_train'], dtype=torch.float)
     y_train = torch.tensor(all_data['y_train'], dtype=torch.long)
     X_dev = torch.tensor(all_data['X_dev'], dtype=torch.float)

@@ -40,11 +40,11 @@ def split_files(source_folder, train_dest, dev_dest, test_dest, size=(64, 64)):
         img = img.convert("L")
 
         if i < train_count:
-            shutil.copy(source, os.path.join(train_dest, file))
+            img.save(os.path.join(train_dest, file))
         elif i < train_count + dev_count:
-            shutil.copy(source, os.path.join(dev_dest, file))
+            img.save(os.path.join(dev_dest, file))
         else:
-            shutil.copy(source, os.path.join(test_dest, file))
+            img.save(os.path.join(test_dest, file))
 
 # Splitting images for each label
 for folder in ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'unknown']:
