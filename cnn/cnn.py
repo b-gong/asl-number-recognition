@@ -158,7 +158,94 @@ class ConvNet(nn.Module):
         ### END_SOLUTION 4g
         return output
 
-def train(model, X_train, y_train, X_dev, y_dev, lr=1e-1, batch_size=32, num_epochs=30):
+class ConvNet1(nn.Module):
+    def __init__(self, num_channels=5, kernel_size=3, hidden_dim=200, dropout_prob=0.0):
+        super(ConvNet1, self).__init__()
+
+        ### BEGIN_SOLUTION 4g
+        self.conv = nn.Conv2d(1, num_channels, kernel_size)
+        self.pool = nn.MaxPool2d(2)
+        self.conv2 = nn.Conv2d(5, 5, 3)
+        self.pool2 = nn.MaxPool2d(2, padding=1)
+        self.linear = nn.Linear(1125, hidden_dim)
+        self.dropout = nn.Dropout(dropout_prob)
+        self.linear2 = nn.Linear(hidden_dim, NUM_CLASSES)
+        ### END_SOLUTION 4g
+
+
+    def forward(self, x):
+        """Output the predicted scores for each class.
+
+        The outputs are the scores *before* the softmax function.
+
+        Inputs:
+            x: Torch tensor of size (B, D)
+        Outputs:
+            Matrix of size (B, C).
+        """
+        B, D = x.shape
+        x = x.reshape(B, 1, IMAGE_SHAPE[0], IMAGE_SHAPE[1])  # Reshape to (B, 1, 28, 28)
+
+        ### BEGIN_SOLUTION 4g
+        output = self.conv(x)
+        output = F.relu(output)
+        output = self.pool(output)
+        output = self.conv2(output)
+        output = F.relu(output)
+        output = self.pool2(output)
+        B, C, X, Y = output.shape
+        output = output.reshape(B, C*X*Y)
+        output = self.linear(output)
+        output = F.relu(output)
+        output = self.dropout(output)
+        output = self.linear2(output)
+        ### END_SOLUTION 4g
+        return output
+
+class ConvNet2(nn.Module):
+    def __init__(self, num_channels=5, kernel_size=3, hidden_dim=200, dropout_prob=0.0):
+        super(ConvNet2, self).__init__()
+
+        ### BEGIN_SOLUTION 4g
+        self.conv = nn.Conv2d(1, num_channels, kernel_size)
+        self.pool = nn.MaxPool2d(2)
+        self.linear = nn.Linear(4805, hidden_dim)
+        self.dropout = nn.Dropout(dropout_prob)
+        self.linear2 = nn.Linear(hidden_dim, 100)
+        self.sigmoid = nn.Sigmoid()
+        self.linear3 = nn.Linear(100, NUM_CLASSES)
+        ### END_SOLUTION 4g
+
+
+    def forward(self, x):
+        """Output the predicted scores for each class.
+
+        The outputs are the scores *before* the softmax function.
+
+        Inputs:
+            x: Torch tensor of size (B, D)
+        Outputs:
+            Matrix of size (B, C).
+        """
+        B, D = x.shape
+        x = x.reshape(B, 1, IMAGE_SHAPE[0], IMAGE_SHAPE[1])  # Reshape to (B, 1, 28, 28)
+
+        ### BEGIN_SOLUTION 4g
+        output = self.conv(x)
+        output = F.relu(output)
+        output = self.pool(output)
+        B, C, X, Y = output.shape
+        output = output.reshape(B, C*X*Y)
+        output = self.linear(output)
+        output = F.relu(output)
+        output = self.dropout(output)
+        output = self.linear2(output)
+        output = self.sigmoid(output)
+        output = self.linear3(output)
+        ### END_SOLUTION 4g
+        return output
+
+def train(model, X_train, y_train, X_dev, y_dev, lr=1e-1, batch_size=32, num_epochs=30, momentum=0):
     """Run the training loop for the model.
 
     All of this code is highly generic and works for any model that does multi-class classification.
@@ -176,7 +263,7 @@ def train(model, X_train, y_train, X_dev, y_dev, lr=1e-1, batch_size=32, num_epo
     """
     start_time = time.time()
     loss_func = nn.CrossEntropyLoss()  # Cross-entropy loss is just softmax regression loss
-    optimizer = optim.SGD(model.parameters(), lr=lr)  # Stochastic gradient descent optimizer
+    optimizer = optim.SGD(model.parameters(), lr=lr, momentum=momentum)  # Stochastic gradient descent optimizer
 
     # Prepare the training dataset
     # Pytorch DataLoader expects a dataset to be a list of (x, y) pairs
@@ -248,7 +335,7 @@ def evaluate(model, X, y, name):
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('model', choices=['linear', 'mlp2', 'mlp3', 'cnn'])
+    parser.add_argument('model', choices=['linear', 'mlp2', 'mlp3', 'cnn', 'cnn1', 'cnn2'])
     parser.add_argument('--learning-rate', '-r', type=float, default=1e-1)
     parser.add_argument('--batch-size', '-b', type=int, default=32)
     parser.add_argument('--num-epochs', '-T', type=int, default=30)
@@ -257,6 +344,7 @@ def parse_args():
     parser.add_argument('--cnn-num-channels', '-c', type=int, default=5)
     parser.add_argument('--cnn-kernel-size', '-k', type=int, default=3)
     parser.add_argument('--test', action='store_true')
+    parser.add_argument('--momentum', '-m', type=float, default=0)
     return parser.parse_args()
 
 def main():
@@ -286,8 +374,19 @@ def main():
                         kernel_size=OPTS.cnn_kernel_size,
                         hidden_dim=OPTS.hidden_dim,
                         dropout_prob=OPTS.dropout_prob)
+    elif OPTS.model == 'cnn1':
+        model = ConvNet1(num_channels=OPTS.cnn_num_channels,
+                        kernel_size=OPTS.cnn_kernel_size,
+                        hidden_dim=OPTS.hidden_dim,
+                        dropout_prob=OPTS.dropout_prob)
+    elif OPTS.model == 'cnn2':
+        model = ConvNet2(num_channels=OPTS.cnn_num_channels,
+                        kernel_size=OPTS.cnn_kernel_size,
+                        hidden_dim=OPTS.hidden_dim,
+                        dropout_prob=OPTS.dropout_prob)
     train(model, X_train, y_train, X_dev, y_dev, lr=OPTS.learning_rate,
-          batch_size=OPTS.batch_size, num_epochs=OPTS.num_epochs)
+          batch_size=OPTS.batch_size, num_epochs=OPTS.num_epochs,
+          momentum=OPTS.momentum)
 
     # Evaluate the model
     print('\nEvaluating final model:')
@@ -295,6 +394,8 @@ def main():
     dev_acc = evaluate(model, X_dev, y_dev, 'Dev')
     if OPTS.test:
         test_acc = evaluate(model, X_test, y_test, 'Test')
+
+    sys.stdout.flush()
 
 if __name__ == '__main__':
     OPTS = parse_args()
