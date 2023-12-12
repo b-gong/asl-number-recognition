@@ -172,6 +172,42 @@ class ASLCNN_V4(nn.Module):
         x = self.fc2(x)
         return x
 
+class ASLCNN_V5(nn.Module):
+    def __init__(self):
+        super(ASLCNN_V5, self).__init__()
+        self.conv1 = nn.Conv2d(1, 32, kernel_size=3, padding=1)
+        self.conv2 = nn.Conv2d(32, 64, kernel_size=3, padding=1)
+        self.conv3 = nn.Conv2d(64, 128, kernel_size=3, padding=1)
+
+        self.batchnorm1 = nn.BatchNorm2d(32)
+        self.batchnorm2 = nn.BatchNorm2d(64)
+        self.batchnorm3 = nn.BatchNorm2d(128)
+
+        self.pool = nn.MaxPool2d(2)
+        self.dropout1 = nn.Dropout(0.25)
+
+        self.fc1 = nn.Linear(128 * 8 * 8, 512)
+        self.dropout2 = nn.Dropout(0.5)
+        self.fc2 = nn.Linear(512, 10)
+        self.softmax = nn.Softmax(dim=1)
+
+    def forward(self, x):
+        x = F.leaky_relu(self.batchnorm1(self.conv1(x)))
+        x = self.pool(x)
+        x = F.leaky_relu(self.batchnorm2(self.conv2(x)))
+        x = self.pool(x)
+        x = F.leaky_relu(self.batchnorm3(self.conv3(x)))
+        x = self.pool(x)
+
+        x = x.view(-1, 128 * 8 * 8)
+        x = F.leaky_relu(self.fc1(x))
+        x = self.dropout1(x)
+        x = self.fc2(x)
+        x = self.softmax(x)
+
+        return x
+
+
 # Training function
 def train(model, X_train, y_train, X_dev, y_dev, lr=1e-1, batch_size=32, num_epochs=10, momentum=0):
     model.train()
@@ -205,6 +241,40 @@ def train(model, X_train, y_train, X_dev, y_dev, lr=1e-1, batch_size=32, num_epo
 
     model.load_state_dict(best_checkpoint)
     print(f'Best Epoch: {best_epoch}, Best Dev Accuracy: {best_dev_acc:.4f}')
+
+def train_NLLL(model, X_train, y_train, X_dev, y_dev, lr=1e-1, batch_size=32, num_epochs=10, momentum=0):
+    model.train()
+    loss_func = nn.NLLLoss()
+    optimizer = optim.SGD(model.parameters(), lr=lr, momentum=momentum)
+
+    train_data = TensorDataset(X_train, y_train)
+    train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True)
+
+    best_dev_acc = -1
+    best_checkpoint = None
+    best_epoch = -1
+
+    for epoch in range(num_epochs):
+        for x_batch, y_batch in train_loader:
+            optimizer.zero_grad()
+            logits = model(x_batch)
+            loss = loss_func(logits, y_batch)
+            loss.backward()
+            optimizer.step()
+
+        train_acc = evaluate(model, X_train, y_train, 'Train')
+        dev_acc = evaluate(model, X_dev, y_dev, 'Dev')
+
+        if dev_acc > best_dev_acc:
+            best_dev_acc = dev_acc
+            best_checkpoint = copy.deepcopy(model.state_dict())
+            best_epoch = epoch
+
+        print(f'Epoch {epoch}: Train Accuracy: {train_acc:.4f}, Dev Accuracy: {dev_acc:.4f}')
+
+    model.load_state_dict(best_checkpoint)
+    print(f'Best Epoch: {best_epoch}, Best Dev Accuracy: {best_dev_acc:.4f}')
+
 
 # Evaluation function
 def evaluate(model, X, y, name):
@@ -243,7 +313,7 @@ def main():
     X_test = X_test.view(-1, 1, 64, 64)
 
     # Create the ASLCNN model
-    model = ASLCNN_V2()
+    model = ASLCNN_V5()
 
     # Train the model
     print("Training model...")
