@@ -18,7 +18,7 @@ from collections import defaultdict
 
 torch.use_deterministic_algorithms(True)
 torch.manual_seed(0)
-file = 'asl_data.npy'
+file = 'asl_data_crop.npy'
 X_data = defaultdict(list)
 y_data = defaultdict(list)
 all_data = {}
@@ -33,18 +33,18 @@ def load_and_preprocess_images(path, size=(64, 64)):
     return images
 
 for number in ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']:
-    for subset in ['train', 'dev', 'test']:
+    for subset in ['train_crop', 'dev_crop', 'test_crop']:
         images = load_and_preprocess_images(os.path.join('../dataset', subset, number))
         for image in images:
             X_data[subset].append(image)
             y_data[subset].append(int(number))
 
-all_data['X_train'] = np.array(X_data['train'])
-all_data['y_train'] = np.array(y_data['train'])
-all_data['X_dev'] = np.array(X_data['dev'])
-all_data['y_dev'] = np.array(y_data['dev'])
-all_data['X_test'] = np.array(X_data['test'])
-all_data['y_test'] = np.array(y_data['test'])
+all_data['X_train'] = np.array(X_data['train_crop'])
+all_data['y_train'] = np.array(y_data['train_crop'])
+all_data['X_dev'] = np.array(X_data['dev_crop'])
+all_data['y_dev'] = np.array(y_data['dev_crop'])
+all_data['X_test'] = np.array(X_data['test_crop'])
+all_data['y_test'] = np.array(y_data['test_crop'])
 
 N, _, _ = all_data['X_train'].shape
 all_data['X_train'] = all_data['X_train'].reshape(N, -1)
