@@ -41,8 +41,139 @@ class ASLCNN(nn.Module):
         x = self.fc2(x)
         return x
 
+class ASLCNN_V1(nn.Module):
+    def __init__(self):
+        super(ASLCNN_V1, self).__init__()
+        self.conv1 = nn.Conv2d(1, 64, kernel_size=5, padding=2)
+        self.conv2 = nn.Conv2d(64, 128, kernel_size=5, padding=2)
+        self.conv3 = nn.Conv2d(128, 256, kernel_size=5, padding=2)
+
+        self.batchnorm1 = nn.BatchNorm2d(64)
+        self.batchnorm2 = nn.BatchNorm2d(128)
+        self.batchnorm3 = nn.BatchNorm2d(256)
+
+        self.pool = nn.MaxPool2d(2)
+        self.dropout1 = nn.Dropout(0.25)
+
+        self.fc1 = nn.Linear(256 * 8 * 8, 1024)
+        self.dropout2 = nn.Dropout(0.5)
+        self.fc2 = nn.Linear(1024, 10)
+
+    def forward(self, x):
+        x = F.relu(self.batchnorm1(self.conv1(x)))
+        x = self.pool(x)
+        x = F.relu(self.batchnorm2(self.conv2(x)))
+        x = self.pool(x)
+        x = F.relu(self.batchnorm3(self.conv3(x)))
+        x = self.pool(x)
+
+        x = x.view(-1, 256 * 8 * 8)
+        x = F.relu(self.fc1(x))
+        x = self.dropout1(x)
+        x = self.fc2(x)
+        return x
+
+class ASLCNN_V2(nn.Module):
+    def __init__(self):
+        super(ASLCNN_V2, self).__init__()
+        self.conv1 = nn.Conv2d(1, 32, kernel_size=3, padding=1)
+        self.conv2 = nn.Conv2d(32, 64, kernel_size=3, padding=1)
+        self.conv3 = nn.Conv2d(64, 128, kernel_size=3, padding=1)
+
+        self.batchnorm1 = nn.BatchNorm2d(32)
+        self.batchnorm2 = nn.BatchNorm2d(64)
+        self.batchnorm3 = nn.BatchNorm2d(128)
+
+        self.pool = nn.AvgPool2d(2)
+        self.dropout1 = nn.Dropout(0.35)
+
+        self.fc1 = nn.Linear(128 * 8 * 8, 512)
+        self.dropout2 = nn.Dropout(0.6)
+        self.fc2 = nn.Linear(512, 10)
+
+    def forward(self, x):
+        x = F.relu(self.batchnorm1(self.conv1(x)))
+        x = self.pool(x)
+        x = F.relu(self.batchnorm2(self.conv2(x)))
+        x = self.pool(x)
+        x = F.relu(self.batchnorm3(self.conv3(x)))
+        x = self.pool(x)
+
+        x = x.view(-1, 128 * 8 * 8)
+        x = F.relu(self.fc1(x))
+        x = self.dropout1(x)
+        x = self.fc2(x)
+        return x
+
+
+class ASLCNN_V3(nn.Module):
+    def __init__(self):
+        super(ASLCNN_V3, self).__init__()
+        self.conv1 = nn.Conv2d(1, 32, kernel_size=3, padding=1)
+        self.conv2 = nn.Conv2d(32, 64, kernel_size=3, padding=1)
+        self.conv3 = nn.Conv2d(64, 128, kernel_size=3, padding=1)
+
+        self.batchnorm1 = nn.BatchNorm2d(32)
+        self.batchnorm2 = nn.BatchNorm2d(64)
+        self.batchnorm3 = nn.BatchNorm2d(128)
+
+        self.pool = nn.MaxPool2d(2)
+        self.dropout1 = nn.Dropout(0.25)
+
+        self.fc1 = nn.Linear(128 * 8 * 8, 256)
+        self.fc2 = nn.Linear(256, 256)
+        self.dropout2 = nn.Dropout(0.5)
+        self.fc3 = nn.Linear(256, 10)
+
+    def forward(self, x):
+        x = F.relu(self.batchnorm1(self.conv1(x)))
+        x = self.pool(x)
+        x = F.relu(self.batchnorm2(self.conv2(x)))
+        x = self.pool(x)
+        x = F.relu(self.batchnorm3(self.conv3(x)))
+        x = self.pool(x)
+
+        x = x.view(-1, 128 * 8 * 8)
+        x = F.relu(self.fc1(x))
+        x = self.dropout2(x)
+        x = F.relu(self.fc2(x))
+        x = self.fc3(x)
+        return x
+
+class ASLCNN_V4(nn.Module):
+    def __init__(self):
+        super(ASLCNN_V4, self).__init__()
+        self.conv1 = nn.Conv2d(1, 32, kernel_size=3, padding=1)
+        self.conv2 = nn.Conv2d(32, 64, kernel_size=3, padding=1)
+        self.conv3 = nn.Conv2d(64, 128, kernel_size=3, padding=1)
+
+        self.batchnorm1 = nn.BatchNorm2d(32)
+        self.batchnorm2 = nn.BatchNorm2d(64)
+        self.batchnorm3 = nn.BatchNorm2d(128)
+
+        self.pool = nn.MaxPool2d(2)
+        self.dropout1 = nn.Dropout(0.25)
+
+        self.fc1 = nn.Linear(128 * 8 * 8, 512)
+        self.dropout2 = nn.Dropout(0.5)
+        self.fc2 = nn.Linear(512, 10)
+
+    def forward(self, x):
+        x = F.leaky_relu(self.batchnorm1(self.conv1(x)))
+        x = self.pool(x)
+        x = F.leaky_relu(self.batchnorm2(self.conv2(x)))
+        x = self.pool(x)
+        x = F.leaky_relu(self.batchnorm3(self.conv3(x)))
+        x = self.pool(x)
+
+        x = x.view(-1, 128 * 8 * 8)
+        x = F.leaky_relu(self.fc1(x))
+        x = self.dropout1(x)
+        x = self.fc2(x)
+        return x
+
 # Training function
-def train(model, X_train, y_train, X_dev, y_dev, lr=1e-1, batch_size=32, num_epochs=30, momentum=0):
+def train(model, X_train, y_train, X_dev, y_dev, lr=1e-1, batch_size=32, num_epochs=10, momentum=0):
     model.train()
     loss_func = nn.CrossEntropyLoss()
     optimizer = optim.SGD(model.parameters(), lr=lr, momentum=momentum)
@@ -112,7 +243,7 @@ def main():
     X_test = X_test.view(-1, 1, 64, 64)
 
     # Create the ASLCNN model
-    model = ASLCNN()
+    model = ASLCNN_V2()
 
     # Train the model
     print("Training model...")
