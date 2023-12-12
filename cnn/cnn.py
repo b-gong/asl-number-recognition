@@ -1,5 +1,4 @@
-"""Code for HW2 Problem 4: Neural Networks on MNIST.
-
+"""
 We will use this notation:
     - B: size of batch
     - C: number of classes, i.e. NUM_CLASSES
