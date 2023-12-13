@@ -402,7 +402,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--learning-rate', '-r', type=float, default=1e-3)  # Adjusted default learning rate
     parser.add_argument('--batch-size', '-b', type=int, default=64)  # Adjusted default batch size
-    parser.add_argument('--num-epochs', '-T', type=int, default=40)  # Adjusted default number of epochs
+    parser.add_argument('--num-epochs', '-T', type=int, default=20)  # Adjusted default number of epochs
     parser.add_argument('--momentum', '-m', type=float, default=0.9)  # Adjusted default momentum
     args = parser.parse_args()
 
@@ -424,7 +424,7 @@ def main():
     X_test = X_test.view(-1, 1, 64, 64)
 
     # Create the ASLCNN model
-    model = ASLCNN_V5()
+    model = ASLCNN_V7()
 
     # Train the model
     print("Training model...")
