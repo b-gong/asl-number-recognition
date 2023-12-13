@@ -251,7 +251,7 @@ class ASLCNN_V7(nn.Module):
         self.batchnorm1 = nn.BatchNorm2d(32)
         self.batchnorm2 = nn.BatchNorm2d(64)
         self.batchnorm3 = nn.BatchNorm2d(128)
-        self.batchnorm3 = nn.BatchNorm2d(256)
+        self.batchnorm4 = nn.BatchNorm2d(256)
 
         self.pool = nn.AvgPool2d(2)
         self.dropout1 = nn.Dropout(0.35)
