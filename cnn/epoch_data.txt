@@ -1,0 +1,29 @@
+Training model...
+Epoch 0: Train F1: 0.6656, Dev F1: 0.6501
+Epoch 1: Train F1: 0.8403, Dev F1: 0.8091
+Epoch 2: Train F1: 0.8637, Dev F1: 0.8245
+Epoch 3: Train F1: 0.9289, Dev F1: 0.8808
+Epoch 4: Train F1: 0.9678, Dev F1: 0.9122
+Epoch 5: Train F1: 0.9722, Dev F1: 0.9145
+Epoch 6: Train F1: 0.9890, Dev F1: 0.9269
+Epoch 7: Train F1: 0.9937, Dev F1: 0.9345
+Epoch 8: Train F1: 0.9972, Dev F1: 0.9450
+Epoch 9: Train F1: 0.9994, Dev F1: 0.9453
+Epoch 10: Train F1: 0.9999, Dev F1: 0.9474
+Epoch 11: Train F1: 0.9999, Dev F1: 0.9481
+Epoch 12: Train F1: 1.0000, Dev F1: 0.9494
+Epoch 13: Train F1: 1.0000, Dev F1: 0.9490
+Epoch 14: Train F1: 1.0000, Dev F1: 0.9500
+Epoch 15: Train F1: 1.0000, Dev F1: 0.9490
+Epoch 16: Train F1: 1.0000, Dev F1: 0.9490
+Epoch 17: Train F1: 1.0000, Dev F1: 0.9481
+Epoch 18: Train F1: 1.0000, Dev F1: 0.9514
+Epoch 19: Train F1: 1.0000, Dev F1: 0.9510
+Best Epoch: 18, Best Dev F1: 0.9514
+
+Evaluating model...
+Train Acc: 1.0000, Dev Acc: 0.9513, Test Acc: 0.9533
+Train Prec: 1.0000, Dev Prec: 0.9515, Test Prec: 0.9537
+Train Rec: 1.0000, Dev Rec: 0.9513, Test Rec: 0.9533
+Train F1: 1.0000, Dev F1: 0.9514, Test F1: 0.9534
+

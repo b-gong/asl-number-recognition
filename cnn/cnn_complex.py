@@ -240,6 +240,42 @@ class ASLCNN_V6(nn.Module):
         x = self.fc2(x)
         return x
 
+class ASLCNN_V7(nn.Module):
+    def __init__(self):
+        super(ASLCNN_V7, self).__init__()
+        self.conv1 = nn.Conv2d(1, 32, kernel_size=5, padding=2)
+        self.conv2 = nn.Conv2d(32, 64, kernel_size=5, padding=2)
+        self.conv3 = nn.Conv2d(64, 128, kernel_size=5, padding=2)
+        self.conv4 = nn.Conv2d(128, 256, kernel_size=5, padding=2)
+
+        self.batchnorm1 = nn.BatchNorm2d(32)
+        self.batchnorm2 = nn.BatchNorm2d(64)
+        self.batchnorm3 = nn.BatchNorm2d(128)
+        self.batchnorm3 = nn.BatchNorm2d(256)
+
+        self.pool = nn.AvgPool2d(2)
+        self.dropout1 = nn.Dropout(0.35)
+
+        self.fc1 = nn.Linear(256 * 4 * 4, 512)
+        self.dropout2 = nn.Dropout(0.6)
+        self.fc2 = nn.Linear(512, 10)
+
+    def forward(self, x):
+        x = F.relu(self.batchnorm1(self.conv1(x)))
+        x = self.pool(x)
+        x = F.relu(self.batchnorm2(self.conv2(x)))
+        x = self.pool(x)
+        x = F.relu(self.batchnorm3(self.conv3(x)))
+        x = self.pool(x)
+        x = F.relu(self.batchnorm4(self.conv4(x)))
+        x = self.pool(x)
+
+        x = x.view(-1, 256 * 4 * 4)
+        x = F.relu(self.fc1(x))
+        x = self.dropout1(x)
+        x = self.fc2(x)
+        return x
+    
 # Training function
 def train(model, X_train, y_train, X_dev, y_dev, lr=1e-1, batch_size=32, num_epochs=10, momentum=0):
     model.train()
@@ -325,8 +361,16 @@ def evaluate_F1(model, X, y, name):
         logits = model(X)
         y_preds = torch.argmax(logits, dim=1)
         
-        #t = (y_preds == y)
+        if name == "Test":
+            incorrect_indices = torch.add((y_preds != y).nonzero(as_tuple=False), 1).squeeze()
+            
+            # Map each incorrect index into two values
+            mapped_indices = [(index.item() // 150, index.item() % 150) for index in incorrect_indices]
 
+            # Print out mapped indices of incorrect predictions
+            print(f"Mapped incorrect predictions for {name}: {mapped_indices}")
+
+        
         # macro averages
         precision = 0
         recall = 0
@@ -358,7 +402,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--learning-rate', '-r', type=float, default=1e-3)  # Adjusted default learning rate
     parser.add_argument('--batch-size', '-b', type=int, default=64)  # Adjusted default batch size
-    parser.add_argument('--num-epochs', '-T', type=int, default=20)  # Adjusted default number of epochs
+    parser.add_argument('--num-epochs', '-T', type=int, default=40)  # Adjusted default number of epochs
     parser.add_argument('--momentum', '-m', type=float, default=0.9)  # Adjusted default momentum
     args = parser.parse_args()
 
@@ -380,7 +424,7 @@ def main():
     X_test = X_test.view(-1, 1, 64, 64)
 
     # Create the ASLCNN model
-    model = ASLCNN()
+    model = ASLCNN_V5()
 
     # Train the model
     print("Training model...")
