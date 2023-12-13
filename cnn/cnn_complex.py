@@ -380,7 +380,7 @@ def main():
     X_test = X_test.view(-1, 1, 64, 64)
 
     # Create the ASLCNN model
-    model = ASLCNN_V6()
+    model = ASLCNN()
 
     # Train the model
     print("Training model...")
@@ -399,7 +399,5 @@ def main():
     print(f'Train F1: {train_f1:.4f}, Dev F1: {dev_f1:.4f}, Test F1: {test_f1:.4f}')
 
     print ()
-    print(f'\nFinal Performance: Train Acc: {train_acc:.5f}, Dev Acc: {dev_acc:.5f}, Test Acc: {test_acc:.5f}')
-
 if __name__ == '__main__':
     main()
