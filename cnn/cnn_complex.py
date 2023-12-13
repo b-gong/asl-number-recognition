@@ -5,9 +5,35 @@ import torch.optim as optim
 from torch.utils.data import DataLoader, TensorDataset
 import numpy as np
 import copy
-import time
 import argparse
 
+class ASLCNN_OneLayer(nn.Module):
+    def __init__(self):
+        super(ASLCNN_OneLayer, self).__init__()
+        self.conv1 = nn.Conv2d(1, 32, kernel_size=3, padding=1)
+        
+        self.batchnorm1 = nn.BatchNorm2d(32)
+
+        self.pool = nn.MaxPool2d(2)
+        self.dropout1 = nn.Dropout(0.25)
+
+        # Adjusted input size for the fully connected layer
+        # After one pooling layer, the image size is halved (64 -> 32)
+        self.fc1 = nn.Linear(32 * 32 * 32, 512)
+        self.dropout2 = nn.Dropout(0.5)
+        self.fc2 = nn.Linear(512, 10)
+
+    def forward(self, x):
+        x = F.relu(self.batchnorm1(self.conv1(x)))
+        x = self.pool(x)
+
+        # Adjust the view based on the new tensor dimensions
+        x = x.view(-1, 32 * 32 * 32)
+        x = F.relu(self.fc1(x))
+        x = self.dropout1(x)
+        x = self.fc2(x)
+        return x
+    
 # Define the ASLCNN model
 class ASLCNN(nn.Module):
     def __init__(self):
@@ -424,7 +450,7 @@ def main():
     X_test = X_test.view(-1, 1, 64, 64)
 
     # Create the ASLCNN model
-    model = ASLCNN_V7()
+    model = ASLCNN_OneLayer()
 
     # Train the model
     print("Training model...")
