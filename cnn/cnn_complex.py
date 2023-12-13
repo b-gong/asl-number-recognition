@@ -192,15 +192,15 @@ class ASLCNN_V5(nn.Module):
         self.softmax = nn.Softmax(dim=1)
 
     def forward(self, x):
-        x = F.leaky_relu(self.batchnorm1(self.conv1(x)))
+        x = F.relu(self.batchnorm1(self.conv1(x)))
         x = self.pool(x)
-        x = F.leaky_relu(self.batchnorm2(self.conv2(x)))
+        x = F.relu(self.batchnorm2(self.conv2(x)))
         x = self.pool(x)
-        x = F.leaky_relu(self.batchnorm3(self.conv3(x)))
+        x = F.relu(self.batchnorm3(self.conv3(x)))
         x = self.pool(x)
 
         x = x.view(-1, 128 * 8 * 8)
-        x = F.leaky_relu(self.fc1(x))
+        x = F.relu(self.fc1(x))
         x = self.dropout1(x)
         x = self.fc2(x)
         x = self.softmax(x)
